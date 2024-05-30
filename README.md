@@ -143,13 +143,13 @@ You can potentially elicit error messages that leak sensitive data returned by y
 <br/><br/>
 Microsoft	SELECT 'foo' WHERE 1 = (SELECT 'secret')<br/>
 <br/><br/>
-> Conversion failed when converting the varchar value 'secret' to data type int.<br/>
+Conversion failed when converting the varchar value 'secret' to data type int.<br/>
 PostgreSQL	SELECT CAST((SELECT password FROM users LIMIT 1) AS int)<br/>
 <br/><br/>
-> invalid input syntax for integer: "secret"<br/>
+ invalid input syntax for integer: "secret"<br/>
 MySQL	SELECT 'foo' WHERE 1=1 AND EXTRACTVALUE(1, CONCAT(0x5c, (SELECT 'secret')))<br/>
 <br/><br/>
-> XPATH syntax error: '\secret'<br/>
+ XPATH syntax error: '\secret'<br/>
 Batched (or stacked) queries<br/>
 You can use batched queries to execute multiple queries in succession. Note that while the subsequent queries are executed, the results are not returned to the application. Hence this technique is primarily of use in relation to blind vulnerabilities where you can use a second query to trigger a DNS lookup, conditional error, or time delay.<br/>
 <br/><br/>
