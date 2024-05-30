@@ -178,7 +178,7 @@ With MySQL, batched queries typically cannot be used for SQL injection. However,
 
 **Time delays**<br/>
 You can cause a time delay in the database when the query is processed. The following will cause an unconditional time delay of 10 seconds.<br/>
-<br/><br/><br/>
+<br/>
 Oracle	dbms_pipe.receive_message(('a'),10)<br/>
 Microsoft	WAITFOR DELAY '0:0:10'<br/>
 PostgreSQL	SELECT pg_sleep(10)<br/>
