@@ -1,11 +1,12 @@
 # sqlcheatsheet<br/>
-# Terms to remember
-1.information_schema - structure
-2.table_schema - is used for supply database names to filter specific database results
-3.table_name -  is used for supply table names to filter tables in specific database
-4.column_name - is used for supply column names to filter columns in specific table
-5.database() - referering to current database
-6.user() - referering to current user who logged in & running queries
+# Terms to remember<br/>
+1.information_schema - structure<br/>
+2.table_schema - is used for supply database names to filter specific database results<br/>
+3.table_name -  is used for supply table names to filter tables in specific database<br/>
+4.column_name - is used for supply column names to filter columns in specific table<br/>
+5.database() - referering to current database<br/>
+6.user() - referering to current user who logged in & running queries<br/>
+
 # Common SQLI Types:<br/>
 ## 1.Inband or classical<br/>
 1a.Error based<br/>
